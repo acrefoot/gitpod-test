@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+    next:
+        build: .
+        image: gitpod_next
+        container_name: gitpod_next
+        env_file:
+            - .env.local
+        environment:
+            DATABASE_URL: postgresql://postgres:password@postgres:5432/immunefi-bugs
+        ports:
+            - "3000:3000"
+        volumes:
+            - .:/code
+            - node_modules-data:/code/node_modules
+        depends_on:
+            - postgres
+
+    prisma_studio:
+        build: .
+        container_name: prisma_studio
+        image: prisma_studio 
+        environment:
+            DATABASE_URL: postgresql://postgres:secretpassword@postgres:5432/immunefi-bugs
+        ports:
+            - "5555:5555"
+        depends_on:
+            - postgres
+        entrypoint: 'npx'
+        command: 'prisma studio'
+
+    postgres:
+        image: "postgres:13.2"
+        container_name: gitpod_postgres
+        environment:
+            - POSTGRES_PASSWORD=password
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+
+volumes:
+    postgres-data:
+    node_modules-data:
